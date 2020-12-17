@@ -4,16 +4,24 @@
   box-sizing: border-box;
 }
 
+html {
+  min-height: 100vh;
+}
+
 body {
   font: 13px Helvetica, Arial;
+  display: flex;
+  flex-flow: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 form {
   background: #000;
   padding: 3px;
-  position: fixed;
-  bottom: 0;
   width: 100%;
+
+  flex-shrink: 0;
 }
 
 form input {
@@ -34,6 +42,9 @@ form button {
   list-style-type: none;
   margin: 0;
   padding: 0;
+
+  flex: 1 1 auto;
+  overflow-y: auto;
 }
 
 #messages li {
