@@ -1,5 +1,8 @@
+const fetch = require('node-fetch');
+
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
+import { uuid } from './utils';
 
 const server = createServer();
 
@@ -37,9 +40,12 @@ io.on(ChatEvent.Connection, (socket: Socket) => {
 
     socket.on(ChatEvent.Message, (msg: IncomingMessage, cb) => {
         const preparedMsg: IChatMessage = {
-            ...msg,
+            text: msg.text,
+            uuid: uuid(),
             timestamp: new Date()
         };
+
+        cb(preparedMsg);
 
         if (!msg.text) {
             setTimeout(() => {
@@ -53,8 +59,9 @@ io.on(ChatEvent.Connection, (socket: Socket) => {
             return;
         }
 
-        socket.to(room).emit(ChatEvent.Message, preparedMsg);
-        cb(preparedMsg);
+        saveMessage(preparedMsg).then(
+            () => socket.to(room).emit(ChatEvent.Message, preparedMsg)
+        );
     });
 });
 
@@ -63,6 +70,19 @@ interface IncomingMessage {
 }
 
 interface IChatMessage {
+    uuid: string;
     text: string;
     timestamp: Date;
+}
+
+function saveMessage(message: IChatMessage): Promise<void> {
+    return fetch('http://localhost:7374/messages', {
+        method: 'POST',
+        body: JSON.stringify(message),
+        headers: {'Content-Type': 'application/json'}
+    })
+        .then((res) => res.json())
+        .then((response) => {
+            console.info('Saved', response);
+        });
 }

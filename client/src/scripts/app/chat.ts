@@ -4,15 +4,21 @@ const socket = io('//localhost:7476', {
     autoConnect: false
 });
 
-socket.connect();
-
 let messages: IChatMessage[] = [];
 
 interface IChatMessage {
     text: string;
-    clientUuid?: string;
+    uuid: string;
     timestamp: Date;
     status: MessageStatus;
+}
+
+function toChatMessage(data): IChatMessage {
+    return {
+        ...data,
+        timestamp: new Date(data.timestamp),
+        status: MessageStatus.Success
+    };
 }
 
 enum MessageStatus {
@@ -39,21 +45,10 @@ let messagesEl = document.querySelector('#messages');
 formEl.addEventListener('submit', (e) => {
     e.preventDefault(); // prevents page reloading
 
-    const fastMessage: IChatMessage = {
-        clientUuid: uuid(),
-        text: inputEl.value,
-        timestamp: new Date(),
-        status: MessageStatus.Pending
-    };
-
-    send(inputEl.value, () => {
-        patchMessage(fastMessage.clientUuid, {
-            status: MessageStatus.Success
-        });
+    send(inputEl.value, (msgRaw) => {
+        messages.push(toChatMessage(msgRaw));
+        render();
     });
-
-    messages.push(fastMessage);
-    render();
 
     inputEl.value = '';
     return false;
@@ -67,42 +62,18 @@ socket.on(ChatEvent.Notification, (note) => console.info('note', note));
 socket.on(ChatEvent.Message, (msgRaw: any) => {
     console.info('incoming', msgRaw);
 
-    messages.push({
-        ...msgRaw,
-        timestamp: new Date(msgRaw.timestamp),
-        status: MessageStatus.Success
-    });
-
+    messages.push(toChatMessage(msgRaw));
     render();
 });
 
 function send(text: string, successFn) {
     const newMessage: MessageRequest = {
-        text: inputEl.value
+        text
     };
 
-    socket.emit(ChatEvent.Message, newMessage, () => {
-        successFn();
+    socket.emit(ChatEvent.Message, newMessage, (msg: IChatMessage) => {
+        successFn(msg);
     });
-}
-
-function uuid() {
-    return '_' + Math.random().toString(36).substr(2, 9);
-}
-
-function patchMessage(msgUuid, msg: Partial<IChatMessage>) {
-    messages = messages.map((message: IChatMessage) => {
-        if (message?.clientUuid === msgUuid) {
-            return {
-                ...message,
-                ...msg
-            };
-        }
-
-        return message;
-    });
-
-    render();
 }
 
 function render() {
@@ -124,3 +95,17 @@ function generateMessage(msg: IChatMessage): HTMLElement {
 
     return li;
 }
+
+function init() {
+    fetch('http://localhost:7374/messages')
+        .then((res) => res.json())
+        .then((response) => {
+            messages = response.map((r) => toChatMessage(r));
+            render();
+
+            socket.connect();
+        });
+}
+
+init();
+
