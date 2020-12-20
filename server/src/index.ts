@@ -4,13 +4,16 @@ import cluster from 'cluster';
 import { LiveEmitter } from './emitter';
 import { ChatServer } from './chat-server';
 
-const redisAdapter = require('socket.io-redis');
-// const Redis = require('ioredis');
+import { createAdapter } from 'socket.io-redis';
+import { RedisClient } from 'redis';
 
 const rooms: string[] = [
     'room1',
     'room2'
 ];
+
+const pubClient = new RedisClient(config.redis);
+const subClient = pubClient.duplicate();
 
 const io = new Server({
     serveClient: false,
@@ -20,7 +23,10 @@ const io = new Server({
         preflightContinue: false,
         optionsSuccessStatus: 204,
     },
-    adapter: redisAdapter(config.redis)
+    adapter: createAdapter({
+        pubClient,
+        subClient
+    })
 });
 
 if (cluster.isMaster) {
