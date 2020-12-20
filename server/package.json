@@ -12,6 +12,8 @@
     "socket.io-redis": "6.0.1"
   },
   "devDependencies": {
+    "artillery": "1.6.1",
+    "artillery-engine-socketio-v3": "1.0.1",
     "awesome-typescript-loader": "5.2.1",
     "concurrently": "5.3.0",
     "nodemon-webpack-plugin": "4.3.2",

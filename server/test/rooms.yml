@@ -1,0 +1,15 @@
+config:
+  target: "http://localhost:3002"
+  socketio:
+    transports: [ "websocket" ]
+  phases:
+    - duration: 10
+      arrivalRate: 10000
+  engines:
+    socketio-v3: { }
+scenarios:
+  - name: My first scenario
+    engine: socketio-v3
+    flow:
+      - emit: ["auth", "alexey"]
+      - emit: ["message", {text: "From artillery", uuid: "_hhy5d2135", timestamp: "2020-12-20T19:58:17.847Z"}]

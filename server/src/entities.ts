@@ -3,6 +3,7 @@ import { uuid } from './utils';
 export enum ChatEvent {
     Connection = 'connection',
     Disconnect = 'disconnect',
+    Auth = 'auth',
     Message = 'message',
     Notification = 'notification'
 }

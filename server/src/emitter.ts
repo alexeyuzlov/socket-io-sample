@@ -9,6 +9,13 @@ export class LiveEmitter {
     }
 
     public init() {
+        return;
+
+        setInterval(() => {
+            this._io.to('ivan').emit(ChatEvent.Message, toChatMessage({text: 'Only for ivan'}));
+            this._io.to('alexey').emit(ChatEvent.Message, toChatMessage({text: 'Only for alexey'}));
+        }, 2000);
+
         this._rooms.forEach((room, i) => {
             setInterval(() => {
                 this._io.to(room).emit(ChatEvent.Message, toChatMessage({text: `to ${room}`}));

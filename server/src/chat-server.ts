@@ -14,8 +14,14 @@ export class ChatServer {
         this._io.on(ChatEvent.Connection, (socket: Socket) => {
             const room: string = getRandom(this._rooms);
 
-            const connection: Connection = new Connection(socket, room);
-            connection.onConnection();
+            socket.on('echo', (data) => {
+                console.info('From echo', data);
+            })
+
+            socket.on(ChatEvent.Auth, (userName: string) => {
+                const connection: Connection = new Connection(socket, room, userName);
+                connection.onConnection();
+            });
         });
     }
 }

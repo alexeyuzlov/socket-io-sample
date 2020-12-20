@@ -1,11 +1,10 @@
-import { config } from './config';
-import { Server } from 'socket.io';
 import cluster from 'cluster';
-import { LiveEmitter } from './emitter';
-import { ChatServer } from './chat-server';
-
-import { createAdapter } from 'socket.io-redis';
+import { Server } from 'socket.io';
 import { RedisClient } from 'redis';
+import { createAdapter } from 'socket.io-redis';
+import { config } from './config';
+import { ChatServer } from './chat-server';
+import { LiveEmitter } from './emitter';
 
 const rooms: string[] = [
     'room1',
