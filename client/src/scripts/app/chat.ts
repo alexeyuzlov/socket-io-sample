@@ -1,42 +1,14 @@
 import { io } from 'socket.io-client';
+import { ChatEvent, IChatMessage, MessageRequest, toChatMessage } from './entities';
 
-const socket = io('//localhost:7476', {
+const port = +localStorage.getItem('port') || 3001;
+
+const socket = io(`//localhost:${port}`, {
+    transports: ['websocket'],
     autoConnect: false
 });
 
 let messages: IChatMessage[] = [];
-
-interface IChatMessage {
-    text: string;
-    uuid: string;
-    timestamp: Date;
-    status: MessageStatus;
-}
-
-function toChatMessage(data): IChatMessage {
-    return {
-        ...data,
-        timestamp: new Date(data.timestamp),
-        status: MessageStatus.Success
-    };
-}
-
-enum MessageStatus {
-    Pending = 'pending',
-    Success = 'success',
-    Failed = 'failed',
-}
-
-interface MessageRequest {
-    text: string;
-}
-
-enum ChatEvent {
-    Connect = 'connect',
-    Disconnect = 'disconnect',
-    Message = 'message',
-    Notification = 'notification',
-}
 
 let formEl = document.querySelector('form');
 let inputEl: HTMLInputElement = document.querySelector('#m');
@@ -54,7 +26,7 @@ formEl.addEventListener('submit', (e) => {
     return false;
 });
 
-socket.on(ChatEvent.Connect, () => console.info('Chat: connected'));
+socket.on(ChatEvent.Connect, () => console.info('Chat: connected on', port));
 socket.on(ChatEvent.Disconnect, () => console.info('Chat: disconnect'));
 
 socket.on(ChatEvent.Notification, (note) => console.info('note', note));
@@ -77,8 +49,6 @@ function send(text: string, successFn) {
 }
 
 function render() {
-    console.info(messages);
-
     messagesEl.innerHTML = '';
 
     messages
@@ -87,6 +57,8 @@ function render() {
             let item = generateMessage(msg);
             messagesEl.appendChild(item);
         });
+
+    messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
 function generateMessage(msg: IChatMessage): HTMLElement {
@@ -107,5 +79,6 @@ function init() {
         });
 }
 
-init();
+// init();
 
+socket.connect();

@@ -1,16 +1,16 @@
-const fetch = require('node-fetch');
-
-import { createServer } from 'http';
+import { config } from './config';
 import { Server, Socket } from 'socket.io';
-import { uuid } from './utils';
+import { getRandom } from './utils';
+import cluster from 'cluster';
+import { ChatEvent, IChatMessage, IncomingMessage, toChatMessage } from './entities';
 
-const server = createServer();
+const redisAdapter = require('socket.io-redis');
+// const Redis = require('ioredis');
 
-server.listen(7476, () => {
-    console.log('listening on *:7476');
-});
+const cpuCount = require('os').cpus().length;
+// const cpuCount = 2;
 
-const io = new Server(server, {
+const io = new Server({
     serveClient: false,
     cors: {
         origin: '*',
@@ -20,69 +20,72 @@ const io = new Server(server, {
     }
 });
 
-enum ChatEvent {
-    Connection = 'connection',
-    Disconnect = 'disconnect',
-    Message = 'message',
-    Notification = 'notification'
+io.adapter(redisAdapter({
+    host: '192.168.20.20',
+    port: 6379
+}));
+
+if (cluster.isMaster) {
+    console.log(`Master ${process.pid} is running`);
+
+    for (let i = 0; i < cpuCount; i++) {
+        cluster.fork();
+    }
+
+    cluster.on('exit', (worker, code, signal) => {
+        console.log(`worker ${worker.process.pid} died!`);
+    });
+
+    liveEmitter();
 }
 
-const room = 'room1';
+if (cluster.isWorker) {
+    const port = config.chatPort + cluster.worker.id;
+    io.listen(port);
 
-io.on(ChatEvent.Connection, (socket: Socket) => {
+    console.log(`workerId: ${cluster.worker.id} listen on port: ${port}`);
+
+    io.on(ChatEvent.Connection, handleConnection);
+}
+
+function handleConnection(socket: Socket) {
+    const room = 'room' + getRandom([1, 2, 1, 2, 1, 2]);
+
+    socket.emit(ChatEvent.Notification, {
+        room
+    })
+
+    console.log(ChatEvent.Connection, 'workerId', cluster.worker.id, 'roomID', room);
+
     socket.join(room);
 
-    console.log(ChatEvent.Connection, socket.id);
+    socket.on(ChatEvent.Disconnect, () => handleDisconnect(socket));
 
-    socket.on(ChatEvent.Disconnect, () => {
-        console.log(ChatEvent.Disconnect, socket.id);
-    });
-
-    socket.on(ChatEvent.Message, (msg: IncomingMessage, cb) => {
-        const preparedMsg: IChatMessage = {
-            text: msg.text,
-            uuid: uuid(),
-            timestamp: new Date()
-        };
-
-        cb(preparedMsg);
-
-        if (!msg.text) {
-            setTimeout(() => {
-                socket.emit(ChatEvent.Notification, {
-                    data: msg,
-                    message: 'Invalid message',
-                    status: 'fail'
-                });
-            }, 2000);
-
-            return;
-        }
-
-        saveMessage(preparedMsg).then(
-            () => socket.to(room).emit(ChatEvent.Message, preparedMsg)
-        );
-    });
-});
-
-interface IncomingMessage {
-    text: string;
+    socket.on(ChatEvent.Message, (msg: IncomingMessage, cb) => handleMessage(socket, room, msg, cb));
 }
 
-interface IChatMessage {
-    uuid: string;
-    text: string;
-    timestamp: Date;
+function handleDisconnect(socket: Socket) {
+    console.log(ChatEvent.Disconnect, socket.id);
 }
 
-function saveMessage(message: IChatMessage): Promise<void> {
-    return fetch('http://localhost:7374/messages', {
-        method: 'POST',
-        body: JSON.stringify(message),
-        headers: {'Content-Type': 'application/json'}
-    })
-        .then((res) => res.json())
-        .then((response) => {
-            console.info('Saved', response);
-        });
+function handleMessage(socket: Socket, room, msg: IncomingMessage, cb) {
+    const preparedMsg: IChatMessage = toChatMessage(msg);
+
+    cb(preparedMsg);
+
+    socket.to(room).emit(ChatEvent.Message, preparedMsg);
+}
+
+function liveEmitter() {
+    setInterval(() => {
+        io.to('room1').emit(ChatEvent.Message, toChatMessage({text: 'room#1'}));
+    }, 2000);
+
+    setInterval(() => {
+        io.to('room2').emit(ChatEvent.Message, toChatMessage({text: 'room#2'}));
+    }, 5000);
+
+    setInterval(() => {
+        io.emit(ChatEvent.Message, toChatMessage({text: 'to All'}));
+    }, 10000);
 }
