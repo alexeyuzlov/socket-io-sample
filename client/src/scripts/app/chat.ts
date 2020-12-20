@@ -1,7 +1,8 @@
 import { io } from 'socket.io-client';
 import { ChatEvent, IChatMessage, MessageRequest, toChatMessage } from './entities';
+import { getRandomPort } from './utils/utils';
 
-const port = +localStorage.getItem('port') || 3001;
+const port = process.env.PORT || +localStorage.getItem('port') || getRandomPort();
 
 const socket = io(`//localhost:${port}`, {
     transports: ['websocket'],
@@ -28,7 +29,6 @@ formEl.addEventListener('submit', (e) => {
 
 socket.on(ChatEvent.Connect, () => console.info('Chat: connected on', port));
 socket.on(ChatEvent.Disconnect, () => console.info('Chat: disconnect'));
-
 socket.on(ChatEvent.Notification, (note) => console.info('note', note));
 
 socket.on(ChatEvent.Message, (msgRaw: any) => {
@@ -80,5 +80,4 @@ function init() {
 }
 
 // init();
-
 socket.connect();

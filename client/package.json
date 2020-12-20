@@ -1,6 +1,7 @@
 {
   "name": "webpack-sample",
-  "version": "1.0.0",
+  "version": "0.0.1",
+  "private": true,
   "scripts": {
     "build": "npx webpack",
     "build:dev": "npm run clean:dist && npm run webpack -- --config webpack.dev.js --progress --profile",
