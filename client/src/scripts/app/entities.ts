@@ -24,6 +24,7 @@ export interface MessageRequest {
 }
 
 export enum ChatEvent {
+    Auth = 'auth',
     Connect = 'connect',
     Disconnect = 'disconnect',
     Message = 'message',

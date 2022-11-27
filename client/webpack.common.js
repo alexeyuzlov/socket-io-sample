@@ -2,17 +2,10 @@ const path = require('path');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-
-// `CheckerPlugin` is optional. Use it if you want async error reporting.
-// We need this plugin to detect a `--watch` mode. It may be removed later
-// after https://github.com/webpack/webpack/issues/3460 will be resolved.
-const {CheckerPlugin, TsConfigPathsPlugin} = require('awesome-typescript-loader');
 const helpers = require('./helpers');
 
 module.exports = function () {
     return {
-        mode: 'development',
-
         entry: './src/scripts/index.ts',
 
         output: {
@@ -40,7 +33,7 @@ module.exports = function () {
 
                 {
                     test: /\.tsx?$/,
-                    loader: 'awesome-typescript-loader'
+                    loader: 'ts-loader'
                 },
 
                 {
@@ -80,10 +73,6 @@ module.exports = function () {
         },
 
         plugins: [
-            new CheckerPlugin(),
-
-            new TsConfigPathsPlugin(),
-
             new HtmlWebpackPlugin({
                 template: './src/index.html'
             }),
@@ -98,9 +87,5 @@ module.exports = function () {
         performance: {
             hints: false
         },
-
-        node: {
-            global: true
-        }
     }
 };

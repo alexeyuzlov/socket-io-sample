@@ -3,7 +3,6 @@
   "rules": {
     "no-console": false,
     "no-string-literal": false,
-    "prefer-const": false,
-    "no-empty": false
+    "prefer-const": false
   }
 }

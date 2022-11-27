@@ -1,5 +1,4 @@
-const EvalSourceMapDevToolPlugin = require('webpack/lib/EvalSourceMapDevToolPlugin');
-const { merge } = require('webpack-merge');
+const {merge} = require('webpack-merge');
 
 const commonConfig = require('./webpack.common.js');
 const helpers = require('./helpers');
@@ -30,18 +29,10 @@ module.exports = function () {
                 },
             ]
         },
-
-        plugins: [
-            new EvalSourceMapDevToolPlugin({
-                moduleFilenameTemplate: '[resource-path]',
-                sourceRoot: 'webpack:///'
-            }),
-        ],
-
         devServer: {
-            // https: true,
-            disableHostCheck: true,
-            contentBase: helpers.root('src/'),
+            static: {
+                directory: helpers.root('src/'),
+            },
             open: true,
             proxy: {
                 // [`${configLib.PROXY_PATH}**`]: {
@@ -54,14 +45,7 @@ module.exports = function () {
                 // }
             },
             port: 7375,
-            historyApiFallback: true,
-            watchOptions: {
-                // if you're using Docker you may need this
-                // aggregateTimeout: 300,
-                // poll: 1000,
-                ignored: /node_modules/
-            },
-            stats: 'minimal',
+            historyApiFallback: true
         },
     });
 };

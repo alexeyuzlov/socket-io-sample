@@ -1,46 +1,16 @@
 {
   "messages": [
     {
-      "text": "346",
-      "uuid": "_eqkll199h",
-      "timestamp": "2020-12-17T18:36:26.964Z",
+      "text": "hello",
+      "uuid": "_fbt3mzqy4",
+      "timestamp": "2022-11-27T07:56:12.899Z",
       "id": 1
     },
     {
-      "text": "35",
-      "uuid": "_1obnv4ovw",
-      "timestamp": "2020-12-17T18:37:15.315Z",
+      "text": "world",
+      "uuid": "_3inesqls0",
+      "timestamp": "2022-11-27T07:56:30.315Z",
       "id": 2
-    },
-    {
-      "text": "23423",
-      "uuid": "_yqdmfi7c6",
-      "timestamp": "2020-12-17T18:51:08.099Z",
-      "id": 3
-    },
-    {
-      "text": "23532",
-      "uuid": "_ebm90gs3z",
-      "timestamp": "2020-12-17T18:51:10.843Z",
-      "id": 4
-    },
-    {
-      "text": "75",
-      "uuid": "_mfu02s3t6",
-      "timestamp": "2020-12-17T18:55:52.092Z",
-      "id": 5
-    },
-    {
-      "text": "1",
-      "uuid": "_dcmw1umv5",
-      "timestamp": "2020-12-17T18:56:53.210Z",
-      "id": 6
-    },
-    {
-      "text": "2",
-      "uuid": "_xdwpaqa92",
-      "timestamp": "2020-12-17T18:56:53.394Z",
-      "id": 7
     }
   ]
 }

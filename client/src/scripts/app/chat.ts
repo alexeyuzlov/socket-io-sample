@@ -1,19 +1,24 @@
 import { io } from 'socket.io-client';
 import { ChatEvent, IChatMessage, MessageRequest, toChatMessage } from './entities';
-import { getRandomPort } from './utils/utils';
+import { getRandom } from './utils';
 
-const port = process.env.PORT || +localStorage.getItem('port') || getRandomPort();
+const users = [
+    'user1',
+    'user2'
+];
 
-const socket = io(`//localhost:${port}`, {
+const user = getRandom(users);
+
+const socket = io(`//localhost:3000`, {
     transports: ['websocket'],
     autoConnect: false
 });
 
 let messages: IChatMessage[] = [];
 
-let formEl = document.querySelector('form');
-let inputEl: HTMLInputElement = document.querySelector('#m');
-let messagesEl = document.querySelector('#messages');
+const formEl: HTMLFormElement = document.querySelector('form');
+const inputEl: HTMLInputElement = document.querySelector('#m');
+const messagesEl: HTMLElement = document.querySelector('#messages');
 
 formEl.addEventListener('submit', (e) => {
     e.preventDefault(); // prevents page reloading
@@ -27,9 +32,16 @@ formEl.addEventListener('submit', (e) => {
     return false;
 });
 
-socket.on(ChatEvent.Connect, () => console.info('Chat: connected on', port));
+socket.on(ChatEvent.Connect, () => {
+    console.info('Chat connected', user);
+    socket.emit(ChatEvent.Auth, user);
+});
+
 socket.on(ChatEvent.Disconnect, () => console.info('Chat: disconnect'));
-socket.on(ChatEvent.Notification, (note) => console.info('note', note));
+
+socket.on(ChatEvent.Notification, (notification: any) => {
+    console.info('Notification', notification);
+});
 
 socket.on(ChatEvent.Message, (msgRaw: any) => {
     console.info('incoming', msgRaw);
@@ -62,10 +74,16 @@ function render() {
 }
 
 function generateMessage(msg: IChatMessage): HTMLElement {
-    let li = document.createElement('li');
-    li.innerText = `${msg.text} time: ${+msg.timestamp} status: ${msg.status}`;
+    const message: HTMLElement = document.createElement('div');
 
-    return li;
+    message.innerHTML = `
+        <div class="message__text">${msg.text}</div>
+        <div class="message__time">${msg.timestamp}</div>
+    `;
+
+    message.classList.add('message');
+
+    return message;
 }
 
 function init() {
@@ -79,5 +97,4 @@ function init() {
         });
 }
 
-// init();
-socket.connect();
+init();

@@ -47,10 +47,16 @@ form button {
   overflow-y: auto;
 }
 
-#messages li {
-  padding: 5px 10px;
-}
+.message {
+  display: flex;
+  padding: 4px;
+  border-bottom: 1px solid #ccc;
 
-#messages li:nth-child(odd) {
-  background: #eee;
+  &__text {
+    flex: 1 1 auto;
+  }
+
+  &__time {
+    flex-shrink: 0;
+  }
 }
