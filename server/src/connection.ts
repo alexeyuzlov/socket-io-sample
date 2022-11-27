@@ -14,7 +14,7 @@ export class Connection {
     public onConnection() {
         console.log(ChatEvent.Connection, this._userName, 'roomId:', this._room);
 
-        this._socket.join([this._room, this._userName]);
+        this._socket.join([this._room]);
 
         this._io.to(this._room).emit(ChatEvent.Notification, {
             message: 'new user connected',
