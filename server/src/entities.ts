@@ -8,6 +8,10 @@ export enum ChatEvent {
     Notification = 'notification'
 }
 
+export interface IncomingMessage {
+    text: string;
+}
+
 export interface IChatMessage {
     uuid: string;
     text: string;
@@ -16,8 +20,8 @@ export interface IChatMessage {
 
 export function toChatMessage(data: any): IChatMessage {
     return {
-        uuid: uuid(),
         text: data.text,
+        uuid: uuid(),
         timestamp: new Date()
     };
 }
