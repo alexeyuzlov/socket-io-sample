@@ -5,7 +5,8 @@ export enum ChatEvent {
     Disconnect = 'disconnect',
     Auth = 'auth',
     Message = 'message',
-    Notification = 'notification'
+    Notification = 'notification',
+    InitialState = 'initialState'
 }
 
 export interface IncomingMessage {

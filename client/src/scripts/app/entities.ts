@@ -29,4 +29,5 @@ export enum ChatEvent {
     Disconnect = 'disconnect',
     Message = 'message',
     Notification = 'notification',
+    InitialState = 'initialState'
 }

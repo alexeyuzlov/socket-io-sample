@@ -9,7 +9,9 @@ const users = [
 
 const user = getRandom(users);
 
-const socket = io(`//localhost:3000`, {
+// const server = 'localhost:80';
+const server = '194.67.111.49:80';
+const socket = io(server, {
     transports: ['websocket'],
     autoConnect: false
 });
@@ -35,6 +37,12 @@ formEl.addEventListener('submit', (e) => {
 socket.on(ChatEvent.Connect, () => {
     console.info('Chat connected', user);
     socket.emit(ChatEvent.Auth, user);
+});
+
+socket.on(ChatEvent.InitialState, (data) => {
+    console.info('Initial State', data);
+    messages = data.state.map((r) => toChatMessage(r));
+    render();
 });
 
 socket.on(ChatEvent.Disconnect, () => console.info('Chat: disconnect'));
@@ -87,14 +95,16 @@ function generateMessage(msg: IChatMessage): HTMLElement {
 }
 
 function init() {
-    fetch('http://localhost:7374/messages')
-        .then((res) => res.json())
-        .then((response) => {
-            messages = response.map((r) => toChatMessage(r));
-            render();
+    // fetch('http://localhost:7374/messages')
+    //     .then((res) => res.json())
+    //     .then((response) => {
+    //         messages = response.map((r) => toChatMessage(r));
+    //         render();
+    //
+    //         socket.connect();
+    //     });
 
-            socket.connect();
-        });
+    socket.connect();
 }
 
 init();

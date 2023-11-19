@@ -11,8 +11,7 @@ const io = new Server({
     }
 });
 
-// new LiveEmitter(io).init();
-
-io.listen(3000);
+io.listen(80);
+console.info('server start on port 80');
 
 new ChatServer(io).init();

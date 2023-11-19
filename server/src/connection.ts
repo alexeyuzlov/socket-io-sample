@@ -1,6 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { ChatEvent, IChatMessage, toChatMessage } from './entities';
 import { saveMessage } from './api';
+import { state } from './state';
 
 export class Connection {
     constructor(
@@ -20,10 +21,15 @@ export class Connection {
             message: 'new user connected',
             room: this._room,
             userName: this._userName,
+            messages: state
         });
 
         this._socket.on(ChatEvent.Disconnect, this.onDisconnect.bind(this));
         this._socket.on(ChatEvent.Message, this.onMessage.bind(this));
+
+        this._socket.emit(ChatEvent.InitialState, {
+            state: state
+        })
     }
 
     public onMessage(msgRaw, cb: (msg: IChatMessage) => void) {
